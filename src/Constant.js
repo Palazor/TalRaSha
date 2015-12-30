@@ -1,17 +1,18 @@
 
 var Constant = {
-    CANDY_WIDTH: 56,
-    CANDY_TYPE_COUNT: 6,
-    MAP_SIZE: 10,
-    FALL_ACCELERATION: 30,
+    CRYSTAL_WIDTH: 56,
+    CRYSTAL_TYPE_COUNT: 6,
+    CRYSTAL_META: 100,
+    CRYSTAL_STONE: 200,
 
-    levels:[
-        {limitStep:30, targetScore:500},
-        {limitStep:25, targetScore:1000},
-        {limitStep:20, targetScore:2000},
-        {limitStep:20, targetScore:3000},
-        {limitStep:15, targetScore:4000},
-        {limitStep:10, targetScore:5000}
-    ]
+    CELL_WIDTH: 100,
+    CELL_SPACE: 75,
+    CELL_HEIGHT: 87,
+
+    MAP_COLS: 9,
+    MAP_ROWS: 8,
+    MAP_WIDTH: 700,
+    MAP_HEIGHT: 696,
+
+    FALL_ACCELERATION: 30
 };
-

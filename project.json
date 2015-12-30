@@ -16,7 +16,7 @@
         "src/Constant.js",
         "src/Storage.js",
         "src/GameUI.js",
-        "src/Candy.js",
+        "src/Crystal.js",
         "src/ExtraScenes.js",
         "src/InstructionUI.js"
     ]

@@ -87,6 +87,14 @@ var GameUI = cc.Layer.extend({
         this.levelText.setString("" + (this.gameLayer.level+1));
         this.scoreText.setString("" + this.gameLayer.score);
         this.stepText.setString("" + (this.gameLayer.limitStep - this.gameLayer.steps));
+    },
+
+    drawLine: function (path, color) {
+        // TODO: 从头至尾连接水晶的一条线 颜色跟水晶颜色一直, 略微加深颜色
+    },
+
+    showFinalScore: function () {
+
     }
 
 });

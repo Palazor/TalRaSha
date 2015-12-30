@@ -1,5 +1,5 @@
 
-var Candy = cc.Sprite.extend({
+var Crystal = cc.Sprite.extend({
 
     type: 0,
     column: 0,
@@ -30,6 +30,6 @@ var Candy = cc.Sprite.extend({
 });
 
 
-Candy.createRandomType = function (column, row) {
-    return new Candy(parseInt(Math.random()*Constant.CANDY_TYPE_COUNT), column, row);
+Crystal.createRandomType = function (column, row) {
+    return new Crystal(parseInt(Math.random()*Constant.CRYSTAL_TYPE_COUNT), column, row);
 };
