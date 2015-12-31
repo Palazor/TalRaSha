@@ -1,11 +1,11 @@
 
 var g_resources = [
-    "res/gem_1.jpg",
-    "res/gem_2.jpg",
-    "res/gem_3.jpg",
-    "res/gem_4.jpg",
-    "res/gem_5.jpg",
-    "res/gem_meta.jpg",
+    "res/gem_1.png",
+    "res/gem_2.png",
+    "res/gem_3.png",
+    "res/gem_4.png",
+    "res/gem_5.png",
+    "res/gem_meta.png",
     "res/stone.jpg",
     "res/bomb.jpg",
     "res/bg.jpg"

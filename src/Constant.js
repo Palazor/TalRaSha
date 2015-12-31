@@ -1,9 +1,9 @@
 
 var Constant = {
     CRYSTAL_WIDTH: 56,
-    CRYSTAL_TYPE_COUNT: 6,
-    CRYSTAL_META: 100,
-    CRYSTAL_STONE: 200,
+    CRYSTAL_TYPE_COUNT: 5,
+    CRYSTAL_META: 'meta',
+    CRYSTAL_STONE: 'stone',
 
     CELL_WIDTH: 100,
     CELL_SPACE: 75,

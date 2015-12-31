@@ -9,11 +9,16 @@ var GameLayer = cc.Layer.extend({
 
     score:0,
     map:null,
+    stone: null,
 
     moving:false,
 
     joinCrystals: [],
     headCrystal: null,
+
+    _eventPointerMove: null,
+    _eventPointerUp: null,
+    _eventTouchCancelled: null,
 
     ctor: function () {
         this._super();
@@ -46,11 +51,33 @@ var GameLayer = cc.Layer.extend({
                 event: cc.EventListener.TOUCH_ONE_BY_ONE,
                 onTouchBegan: this._onTouchBegan.bind(this)
             }, this.mapPanel);
+
+            this._eventPointerMove = {
+                event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                onTouchMove: this._onTouchMove.bind(this)
+            };
+            this._eventPointerUp = {
+                event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                onTouchEnded: this._onTouchEnd.bind(this)
+            };
+            this._eventTouchCancelled ={
+                event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                onTouchCancelled: this._onTouchEnd.bind(this)
+            };
         } else {
             cc.eventManager.addListener({
                 event: cc.EventListener.MOUSE,
                 onMouseDown: this._onMouseDown.bind(this)
             }, this.mapPanel);
+
+            this._eventPointerMove = {
+                event: cc.EventListener.MOUSE,
+                onMouseMove: this._onMouseMove.bind(this)
+            };
+            this._eventPointerUp = {
+                event: cc.EventListener.MOUSE,
+                onMouseUp: this._onMouseUp.bind(this)
+            };
         }
 
         this._init();
@@ -81,19 +108,29 @@ var GameLayer = cc.Layer.extend({
 
     _onTouchBegan: function (touch, event) {
         this._pointerDown(touch.getLocation().x, touch.getLocation().y);
+
+        cc.eventManager.addListener(this._eventPointerMove, this.mapPanel);
+        cc.eventManager.addListener(this._eventPointerUp, this.mapPanel);
+        cc.eventManager.addListener(this._eventTouchCancelled, this.mapPanel);
+    },
+
+    _onTouchMove: function (touch, event) {
+        this._pointerMove(touch.getLocation().x, touch.getLocation().y);
+    },
+
+    _onTouchEnd: function (touch, event) {
+        cc.eventManager.removeListener(this._eventPointerMove, this.mapPanel);
+        cc.eventManager.removeListener(this._eventPointerUp, this.mapPanel);
+        cc.eventManager.removeListener(this._eventTouchCancelled, this.mapPanel);
+
+        this._pointerUp();
     },
 
     _onMouseDown: function (event) {
         this._pointerDown(event.getLocationX(), event.getLocationY());
 
-        cc.eventManager.addListener({
-            event: cc.EventListener.MOUSE,
-            onMouseMove: this._onMouseMove.bind(this)
-        }, this.mapPanel);
-        cc.eventManager.addListener({
-            event: cc.EventListener.MOUSE,
-            onMouseUp: this._onMouseUp.bind(this)
-        }, this.mapPanel);
+        cc.eventManager.addListener(this._eventPointerMove, this.mapPanel);
+        cc.eventManager.addListener(this._eventPointerUp, this.mapPanel);
     },
 
     _onMouseMove: function (event) {
@@ -101,21 +138,15 @@ var GameLayer = cc.Layer.extend({
     },
 
     _onMouseUp: function (event) {
-        cc.eventManager.removeListener({
-            event: cc.EventListener.MOUSE,
-            onMouseMove: this._onMouseMove.bind(this)
-        }, this.mapPanel);
-        cc.eventManager.removeListener({
-            event: cc.EventListener.MOUSE,
-            onMouseUp: this._onMouseUp.bind(this)
-        }, this.mapPanel);
+        cc.eventManager.removeListener(this._eventPointerMove, this.mapPanel);
+        cc.eventManager.removeListener(this._eventPointerUp, this.mapPanel);
 
         this._pointerUp();
     },
 
     _pointerDown: function (screenX, screenY) {
         this.joinCrystals = [];
-        headCrystal = null;
+        this.headCrystal = null;
 
         this._pushCrystal(screenX, screenY);
     },
@@ -140,86 +171,60 @@ var GameLayer = cc.Layer.extend({
             return;
         }
 
+        if (this.headCrystal == null && crystal.type != Constant.CRYSTAL_META) {
+            this.headCrystal = crystal;
+        }
+
         if (this.joinCrystals.length == 0) {
             this.joinCrystals.push(crystal);
-
-            if (crystal.type != Constant.CRYSTAL_META) {
-                this.headCrystal = crystal;
-            }
 
             return;
         }
 
-        if (this.joinCrystals.indexOf(crystal) < 0 && this.headCrystal.type == crystal.type) {
+        if (this.joinCrystals.indexOf(crystal) < 0 &&
+            (crystal.type == Constant.CRYSTAL_META || this.headCrystal.type == crystal.type)) {
             this.joinCrystals.push(crystal);
-            // draw line
+            // TODO: draw line
         }
-
-        return;
     },
 
     _removeJoined: function () {
-        if (this.joinCrystals.length == 0) {
+        var count = this.joinCrystals.length;
+        if (count < 3) {
             return;
         }
 
         this.moving = true;
 
-        for (var i = 0; i < this.joinCrystals.length; i++) {
-            var crystal = this.joinCrystals[i];
+        var metaCount = 0;
+        var removeCrystal = function (crystal) {
+            if (crystal.type == Constant.CRYSTAL_META) {
+                metaCount++;
+            }
+
             this.mapPanel.removeChild(crystal);
             this.map[crystal.column][crystal.row] = null;
+
+            crystal.die();
+        };
+
+        if (this.joinCrystals.forEach) {
+            this.joinCrystals.forEach(function (crystal) {
+                removeCrystal.apply(this, [crystal]);
+            }.bind(this))
+        } else {
+            for (var i = 0; i < this.joinCrystals.length; i++) {
+                removeCrystal.apply(this, [this.joinCrystals[i]]);
+            }
         }
 
-        this.score += this.joinCrystals.length*joinCrystals.length;
+        this.score += count * count * metaCount;
+
+        this._generateNewCrystal();
     },
 
-    _popCrystal: function (column, row) {
-        if(this.moving)
-            return;
+    _tryRemoveStone: function () {
 
-        var joinCrystals = [this.map[column][row]];
-        var index = 0;
-        var pushIntoCrystals = function(element){
-            if(joinCrystals.indexOf(element) < 0)
-                joinCrystals.push(element);
-        };
-        while(index < joinCrystals.length){
-            var crystal = joinCrystals[index];
-            if(this._checkCrystalExist(crystal.column-1, crystal.row) && 
-            		this.map[crystal.column-1][crystal.row].type == crystal.type){
-                pushIntoCrystals(this.map[crystal.column-1][crystal.row]);
-            }
-            if(this._checkCrystalExist(crystal.column+1, crystal.row) && 
-            		this.map[crystal.column+1][crystal.row].type == crystal.type){
-                pushIntoCrystals(this.map[crystal.column+1][crystal.row]);
-            }
-            if(this._checkCrystalExist(crystal.column, crystal.row-1) && 
-            		this.map[crystal.column][crystal.row-1].type == crystal.type){
-                pushIntoCrystals(this.map[crystal.column][crystal.row-1]);
-            }
-            if(this._checkCrystalExist(crystal.column, crystal.row+1) && 
-            		this.map[crystal.column][crystal.row+1].type == crystal.type){
-                pushIntoCrystals(this.map[crystal.column][crystal.row+1]);
-            }
-            index++;
-        }
-
-        if(joinCrystals.length <= 1)
-            return;
-        
-        this.steps++;
-        this.moving = true;
-
-        for (var i = 0; i < joinCrystals.length; i++) {
-            var crystal = joinCrystals[i];
-            this.mapPanel.removeChild(crystal);
-            this.map[crystal.column][crystal.row] = null;
-        }
-
-        this.score += joinCrystals.length*joinCrystals.length;
-        this._generateNewCrystal();
-        this._checkSucceedOrFail();
     },
 
     _checkCrystalExist: function(col, row){
@@ -233,38 +238,36 @@ var GameLayer = cc.Layer.extend({
 
     _generateNewCrystal: function () {
         var maxTime = 0;
-        for (var i = 0; i < Constant.MAP_SIZE; i++) {        //deal each column
+        for (var col = 0; col < Constant.MAP_COLS; col++) {
             var missCount = 0;
-            for (var j = 0; j < this.map[i].length; j++) {
+            for (var row = 0; row < this.map[col].length; row++) {
 
-                var crystal = this.map[i][j];
+                var crystal = this.map[col][row];
                 if(!crystal){
-                    var crystal = Crystal.createRandomType(i,Constant.MAP_SIZE+missCount);
+                    var crystal = Crystal.createRandomType(col, Constant.MAP_ROWS - (col % 2) + missCount);
                     this.mapPanel.addChild(crystal);
-                    crystal.x = crystal.column * Constant.CRYSTAL_WIDTH + Constant.CRYSTAL_WIDTH/2;
-                    crystal.y = crystal.row * Constant.CRYSTAL_WIDTH + Constant.CRYSTAL_WIDTH/2;
-                    this.map[i][crystal.row] = crystal;
+                    crystal.x = crystal.column * Constant.CELL_SPACE + Constant.CELL_WIDTH / 2;
+                    crystal.y = crystal.row * Constant.CELL_HEIGHT + (1 + crystal.column % 2) * Constant.CELL_HEIGHT / 2;
+                    this.map[col][crystal.row] = crystal;
                     missCount++;
                 }else{
                     var fallLength = missCount;
                     if(fallLength > 0){
-                        var duration = Math.sqrt(2*fallLength/Constant.FALL_ACCELERATION);
+                        var duration = Math.sqrt(2 * fallLength / Constant.FALL_ACCELERATION);
                         if(duration > maxTime)
                             maxTime = duration;
-                        var move = cc.moveTo(duration, crystal.x, 
-                        		crystal.y-Constant.CRYSTAL_WIDTH*fallLength).
-                        		easing(cc.easeIn(2));    //easeIn参数是幂，以几次幂加速
+                        var move = cc.moveTo(duration, crystal.x, crystal.y-Constant.CELL_HEIGHT * fallLength).easing(cc.easeIn(2));    //easeIn参数是幂，以几次幂加速
                         crystal.runAction(move);
                         crystal.row -= fallLength;        //adjust all crystal's row
-                        this.map[i][j] = null;
-                        this.map[i][crystal.row] = crystal;
+                        this.map[col][row] = null;
+                        this.map[col][crystal.row] = crystal;
                     }
                 }
             }
 
             //移除超出地图的临时元素位置
-            for (var j = this.map[i].length; j >= Constant.MAP_SIZE; j--) {
-                this.map[i].splice(j, 1);
+            for (var j = this.map[col].length; j >= Constant.MAP_ROWS - (col % 2); j--) {
+                this.map[col].splice(j, 1);
             }
         }
         this.scheduleOnce(this._finishCrystalFalls.bind(this), maxTime);
@@ -274,25 +277,6 @@ var GameLayer = cc.Layer.extend({
     _finishCrystalFalls: function () {
         this.moving = false;
     },
-
-    _checkSucceedOrFail: function () {
-        if(this.score > this.targetScore){
-            this.ui.showSuccess();
-            this.score += (this.limitStep - this.steps) * 30;
-            Storage.setCurrentLevel(this.level+1);
-            Storage.setCurrentScore(this.score);
-            this.scheduleOnce(function(){
-                cc.director.runScene(new GameScene());
-            }, 3);
-        }else if(this.steps >= this.limitStep){
-            this.ui.showFail();
-            Storage.setCurrentLevel(0);
-            Storage.setCurrentScore(0);
-            this.scheduleOnce(function(){
-                cc.director.runScene(new GameScene());
-            }, 3);
-        }
-    }
 
 });
 

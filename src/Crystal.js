@@ -6,7 +6,7 @@ var Crystal = cc.Sprite.extend({
     row: 0,
 
     ctor: function (type, column, row) {
-        this._super("res/gem_" + (type+1) + ".jpg");
+        this._super("res/gem_" + type + ".png");
         this.init(type, column, row);
     },
 
@@ -31,5 +31,9 @@ var Crystal = cc.Sprite.extend({
 
 
 Crystal.createRandomType = function (column, row) {
-    return new Crystal(parseInt(Math.random()*Constant.CRYSTAL_TYPE_COUNT), column, row);
+    if (Math.random() < 0.01) {
+        return new Crystal(Constant.CRYSTAL_META, column, row);
+    } else {
+        return new Crystal(parseInt(Math.random()*Constant.CRYSTAL_TYPE_COUNT) + 1, column, row);
+    }
 };
