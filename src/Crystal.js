@@ -28,6 +28,10 @@ var Crystal = cc.Sprite.extend({
     },
 
     turnToStone: function () {
+        if (this.type == Constant.CRYSTAL_STONE) {
+            return;
+        }
+
         // 快速, 随机地战栗, 颜色渐渐变灰, 透明度变淡, 最后变成石头图片
         this.scheduleOnce(function () {
             this.icon.stopAllActions();
@@ -66,12 +70,12 @@ var Crystal = cc.Sprite.extend({
         this.icon.x = 0;
         this.icon.y = 0;
 
-        this.removeChild(this.icon);
         this.stopAllActions();
         var fade = cc.fadeOut(0.1);
         var scale = cc.scaleTo(0.1, 2);
         var spawn = cc.spawn(fade, scale);
         var callback = cc.callFunc(function () {
+            this.removeChild(this.icon);
             this.removeFromParent(true);
         }, this);
         var sequence = cc.sequence(spawn, callback);

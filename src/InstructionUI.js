@@ -9,7 +9,7 @@
  * Step 5: 又一个石头
  * Step 6: 用炸弹摧毁
  */
-var GameUI = cc.Layer.extend({
+var InstructionUI = cc.Layer.extend({
 
     gameLayer:null,
 

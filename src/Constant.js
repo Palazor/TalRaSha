@@ -20,5 +20,9 @@ var Constant = {
         CRYSTAL_DIE: 'crystalDie'
     },
 
-    TIME_STONE_SPAWN: 30
+    STONE_BONUS_TIME: 10,
+    STONE_BONUS_SCORE: 3,
+
+    TIME_STONE_SPAWN: 30,
+    TIME_LEFT_INIT: 99
 };

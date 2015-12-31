@@ -1,9 +1,15 @@
 
 var GameUI = cc.Layer.extend({
 
-    levelText:null,
     scoreText:null,
-    stepText:null,
+    leftTimeText:null,
+
+    count1Text:null,
+    count2Text:null,
+    count3Text:null,
+    count4Text:null,
+    count5Text:null,
+    countMetaText:null,
 
     gameLayer:null,
 
@@ -15,78 +21,149 @@ var GameUI = cc.Layer.extend({
     },
 
     _initInfoPanel: function () {
+        const margin = 80;
+
         var size = cc.director.getWinSize();
-        var levelLabel = new cc.LabelTTF("Level", "arial", 36);
-        levelLabel.x = 100;
-        levelLabel.y = size.height - 50;
-        levelLabel.setColor(cc.color(0,0,0));
-        this.addChild(levelLabel);
 
-        var levelText = new cc.LabelTTF("1", "arial", 36);
-        levelText.x = 100;
-        levelText.y = levelLabel.y - 40;
-        levelText.setColor(cc.color(0,0,0));
-        this.addChild(levelText);
-        this.levelText = levelText;
-
-        var scoreLabel = new cc.LabelTTF("Score", "arial", 36);
-        scoreLabel.x = 370;
-        scoreLabel.y = levelLabel.y;
-        scoreLabel.setColor(cc.color(0,0,0));
+        var scoreLabel = new cc.LabelTTF("SCORE", "arial", 48, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        scoreLabel.setAnchorPoint(0, 1);
+        scoreLabel.x = margin;
+        scoreLabel.y = size.height - 30;
+        scoreLabel.setColor(cc.color(255, 255, 255));
         this.addChild(scoreLabel);
 
-        var scoreText = new cc.LabelTTF("1", "arial", 36);
-        scoreText.x = 370;
-        scoreText.y = levelText.y;
-        scoreText.setColor(cc.color(0,0,0));
+        var scoreText = new cc.LabelTTF("0", "arial", 48, undefined, cc.TEXT_ALIGNMENT_RIGHT);
+        scoreText.setAnchorPoint(1, 1);
+        scoreText.x = size.width - margin;
+        scoreText.y = scoreLabel.y;
+        scoreText.setColor(cc.color(255, 255, 255));
         this.addChild(scoreText);
         this.scoreText = scoreText;
 
-        var stepLabel = new cc.LabelTTF("Step", "arial", 36);
-        stepLabel.x = 620;
-        stepLabel.y = levelLabel.y;
-        stepLabel.setColor(cc.color(0,0,0));
-        this.addChild(stepLabel);
+        var leftTimeLabel = new cc.LabelTTF("TIME LEFT", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        leftTimeLabel.setAnchorPoint(0, 1);
+        leftTimeLabel.x = margin;
+        leftTimeLabel.y = scoreLabel.y - scoreLabel.height - 10;
+        leftTimeLabel.setColor(cc.color(255, 255, 255));
+        this.addChild(leftTimeLabel);
 
-        var stepText = new cc.LabelTTF("1", "arial", 36);
-        stepText.x = 620;
-        stepText.y = levelText.y;
-        stepText.setColor(cc.color(0,0,0));
-        this.addChild(stepText);
-        this.stepText = stepText;
+        var leftTimeText = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_RIGHT);
+        leftTimeText.setAnchorPoint(1, 1);
+        leftTimeText.x = size.width - margin;
+        leftTimeText.y = leftTimeLabel.y;
+        leftTimeText.setColor(cc.color(255, 255, 255));
+        this.addChild(leftTimeText);
+        this.leftTimeText = leftTimeText;
+
+        const iconWidth = 60;
+        var crystal1 = new cc.Sprite('res/gem_1.png');
+        crystal1.x = margin + crystal1.width / 2;
+        crystal1.y = 150;
+        crystal1.setScale(0.7);
+        this.addChild(crystal1);
+
+        var count1Text = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        count1Text.setAnchorPoint(0, 0.5);
+        count1Text.x = margin + iconWidth;
+        count1Text.y = crystal1.y;
+        count1Text.setColor(cc.color(255, 255, 255));
+        this.addChild(count1Text);
+        this.count1Text = count1Text;
+
+        var crystal2 = new cc.Sprite('res/gem_2.png');
+        crystal2.x = crystal1.x + 190;
+        crystal2.y = crystal1.y;
+        crystal2.setScale(0.7);
+        this.addChild(crystal2);
+
+        var count2Text = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        count2Text.setAnchorPoint(0, 0.5);
+        count2Text.x = count1Text.x + 190;
+        count2Text.y = crystal1.y;
+        count2Text.setColor(cc.color(255, 255, 255));
+        this.addChild(count2Text);
+        this.count2Text = count2Text;
+
+        var crystal3 = new cc.Sprite('res/gem_3.png');
+        crystal3.x = crystal2.x + 190;
+        crystal3.y = crystal1.y;
+        crystal3.setScale(0.7);
+        this.addChild(crystal3);
+
+        var count3Text = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        count3Text.setAnchorPoint(0, 0.5);
+        count3Text.x = count2Text.x + 190;
+        count3Text.y = crystal1.y;
+        count3Text.setColor(cc.color(255, 255, 255));
+        this.addChild(count3Text);
+        this.count3Text = count3Text;
+
+        var crystal4 = new cc.Sprite('res/gem_4.png');
+        crystal4.x = margin + crystal4.width / 2;
+        crystal4.y = 100;
+        crystal4.setScale(0.7);
+        this.addChild(crystal4);
+
+        var count4Text = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        count4Text.setAnchorPoint(0, 0.5);
+        count4Text.x = margin + iconWidth;
+        count4Text.y = crystal4.y;
+        count4Text.setColor(cc.color(255, 255, 255));
+        this.addChild(count4Text);
+        this.count4Text = count4Text;
+
+        var crystal5 = new cc.Sprite('res/gem_5.png');
+        crystal5.x = crystal4.x + 190;
+        crystal5.y = crystal4.y;
+        crystal5.setScale(0.7);
+        this.addChild(crystal5);
+
+        var count5Text = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        count5Text.setAnchorPoint(0, 0.5);
+        count5Text.x = count4Text.x + 190;
+        count5Text.y = crystal4.y;
+        count5Text.setColor(cc.color(255, 255, 255));
+        this.addChild(count5Text);
+        this.count5Text = count5Text;
+
+        var crystalMeta = new cc.Sprite('res/gem_meta.png');
+        crystalMeta.x = crystal5.x + 190;
+        crystalMeta.y = crystal4.y;
+        crystalMeta.setScale(0.7);
+        this.addChild(crystalMeta);
+
+        var countMetaText = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        countMetaText.setAnchorPoint(0, 0.5);
+        countMetaText.x = count5Text.x + 190;
+        countMetaText.y = crystal4.y;
+        countMetaText.setColor(cc.color(255, 255, 255));
+        this.addChild(countMetaText);
+        this.countMetaText = countMetaText;
     },
 
-    showSuccess: function () {
+    showResult: function () {
         var bg = new cc.LayerColor(cc.color(255,255,255),500,500);
         this.addChild(bg, 1);
         var size = cc.director.getWinSize();
         bg.x = (size.width - bg.width)/2;
         bg.y = (size.height - bg.height)/2;
-        var stepText = new cc.LabelTTF("恭喜，已完成第" + (this.gameLayer.level+1)
-        		+ "关，\n剩余步数30倍奖励！", "arial", 50);
-        stepText.setColor(cc.color(0,0,0));
-        stepText.x = 250;
-        stepText.y = 250;
-        bg.addChild(stepText);
-    },
-
-    showFail: function () {
-        var bg = new cc.LayerColor(cc.color(255,255,255),500,500);
-        this.addChild(bg, 1);
-        var size = cc.director.getWinSize();
-        bg.x = (size.width - bg.width)/2;
-        bg.y = (size.height - bg.height)/2;
-        var stepText = new cc.LabelTTF("失败了，\n从头来过吧！", "arial", 56);
-        stepText.setColor(cc.color(0,0,0));
-        stepText.x = 250;
-        stepText.y = 250;
-        bg.addChild(stepText);
+        var text = new cc.LabelTTF("Score:" + (this.gameLayer.score), "arial", 50);
+        text.setColor(cc.color(0,0,0));
+        text.x = 250;
+        text.y = 250;
+        bg.addChild(text);
     },
 
     update: function () {
-        this.levelText.setString("" + (this.gameLayer.level+1));
         this.scoreText.setString("" + this.gameLayer.score);
-        this.stepText.setString("" + (this.gameLayer.limitStep - this.gameLayer.steps));
+        this.leftTimeText.setString("" + Math.round(this.gameLayer.timeLeft / 1000));
+
+        this.count1Text.setString("" + this.gameLayer.crystalCount['1']);
+        this.count2Text.setString("" + this.gameLayer.crystalCount['2']);
+        this.count3Text.setString("" + this.gameLayer.crystalCount['3']);
+        this.count4Text.setString("" + this.gameLayer.crystalCount['4']);
+        this.count5Text.setString("" + this.gameLayer.crystalCount['5']);
+        this.countMetaText.setString("" + this.gameLayer.crystalCount[Constant.CRYSTAL_META]);
     },
 
     drawLine: function (path, color) {
