@@ -85,6 +85,10 @@ var GameLayer = cc.Layer.extend({
         this.ui = new GameUI(this);
         this.addChild(this.ui, 3);
 
+        this.scheduleOnce(function () {
+            this.scheduleUpdate();
+        }, Constant.TIME_STONE_SPAWN, this);
+
         return true;
     },
 
@@ -187,7 +191,7 @@ var GameLayer = cc.Layer.extend({
 
         // must be a neighbour
         var tail = this.joinCrystals[len - 1];
-        if ((tail.x - crystal.x) * (tail.x - crystal.x) + (tail.y - crystal.y) * (tail.y - crystal.y) > Constant.CELL_HEIGHT * Constant.CELL_HEIGHT + 1) {
+        if (!this._isNeighbour(tail, crystal)) {
             return;
         }
 
@@ -210,17 +214,33 @@ var GameLayer = cc.Layer.extend({
         }
 
         this.moving = true;
+        var tryRemoveStone = this.stone && count >= 4;
+        var metaBonus = 0, stoneBonus = 1;
 
-        var metaCount = 0;
+        var removeStone = function () {
+            stoneBonus = 2;
+
+            this.map[this.stone.column][this.stone.row] = null;
+            this.stone.die();
+            this.stone = null;
+
+            // TODO: pop a meta crystal or add extra time
+        };
+
         var removeCrystal = function (crystal) {
             if (crystal.type == Constant.CRYSTAL_META) {
-                metaCount++;
+                metaBonus++;
             }
 
-            this.mapPanel.removeChild(crystal);
-            this.map[crystal.column][crystal.row] = null;
+            if (tryRemoveStone && this._isNeighbour(this.stone, crystal)) {
+                removeStone.apply(this);
+            }
 
+            this.map[crystal.column][crystal.row] = null;
             crystal.die();
+            if (crystal == this.stone) {
+                this.stone = null;
+            }
         };
 
         if (this.joinCrystals.forEach) {
@@ -233,13 +253,9 @@ var GameLayer = cc.Layer.extend({
             }
         }
 
-        this.score += count * count * metaCount;
+        this.score += count * count * (1 + metaBonus * 0.5) * stoneBonus;
 
         this._generateNewCrystal();
-    },
-
-    _tryRemoveStone: function () {
-
     },
 
     _checkCrystalExist: function(col, row){
@@ -249,6 +265,15 @@ var GameLayer = cc.Layer.extend({
             return true;
         }
         return false;
+    },
+
+    _isNeighbour: function (a, b) {
+        if (!a || !b) {
+            return false;
+        }
+
+        var distSqr = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+        return distSqr < Constant.CELL_HEIGHT * Constant.CELL_HEIGHT + 1
     },
 
     _generateNewCrystal: function () {
@@ -292,6 +317,24 @@ var GameLayer = cc.Layer.extend({
     _finishCrystalFalls: function () {
         this.moving = false;
     },
+
+    _popStone: function () {
+        if (this.stone) {
+            return;
+        }
+
+        var col = Math.floor(Math.random() * this.map.length);
+        var column = this.map[col];
+        var row = Math.floor(Math.random() * column.length);
+        this.stone = column[row];
+        this.stone.turnToStone();
+    },
+
+    update : function() {
+        this._super();
+
+        this._popStone();
+    }
 
 });
 

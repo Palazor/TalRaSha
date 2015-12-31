@@ -6,7 +6,7 @@ var g_resources = [
     "res/gem_4.png",
     "res/gem_5.png",
     "res/gem_meta.png",
-    "res/stone.jpg",
+    "res/stone.png",
     "res/bomb.jpg",
     "res/bg.jpg"
 ];

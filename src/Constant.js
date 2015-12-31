@@ -14,5 +14,11 @@ var Constant = {
     MAP_WIDTH: 700,
     MAP_HEIGHT: 696,
 
-    FALL_ACCELERATION: 30
+    FALL_ACCELERATION: 30,
+
+    EVENT: {
+        CRYSTAL_DIE: 'crystalDie'
+    },
+
+    TIME_STONE_SPAWN: 30
 };
