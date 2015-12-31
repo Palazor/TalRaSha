@@ -167,25 +167,40 @@ var GameLayer = cc.Layer.extend({
             return;
         }
         var crystal = this.map[column][row];
+
+        // stone is ignored
         if (crystal.type == Constant.CRYSTAL_STONE) {
             return;
         }
 
+        // find the first normal crystal
         if (this.headCrystal == null && crystal.type != Constant.CRYSTAL_META) {
             this.headCrystal = crystal;
         }
 
-        if (this.joinCrystals.length == 0) {
+        var len = this.joinCrystals.length;
+        if (len == 0) {
             this.joinCrystals.push(crystal);
 
             return;
         }
 
-        if (this.joinCrystals.indexOf(crystal) < 0 &&
-            (crystal.type == Constant.CRYSTAL_META || this.headCrystal.type == crystal.type)) {
-            this.joinCrystals.push(crystal);
-            // TODO: draw line
+        // must be a neighbour
+        var tail = this.joinCrystals[len - 1];
+        if ((tail.x - crystal.x) * (tail.x - crystal.x) + (tail.y - crystal.y) * (tail.y - crystal.y) > Constant.CELL_HEIGHT * Constant.CELL_HEIGHT + 1) {
+            return;
         }
+
+        var index = this.joinCrystals.indexOf(crystal);
+        if (index >= 0 ) {
+            // already in queue, roll back
+            this.joinCrystals.splice(index + 1);
+        } else if (crystal.type == Constant.CRYSTAL_META || this.headCrystal.type == crystal.type) {
+            // add a new available crystal
+            this.joinCrystals.push(crystal);
+        }
+
+        // TODO: draw line
     },
 
     _removeJoined: function () {
