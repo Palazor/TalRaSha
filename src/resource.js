@@ -16,5 +16,12 @@ var g_resources = [
     "res/dialogBg.png",
     "res/inputBg.png",
     "res/timeBar.png",
-    "res/timeBarFill.png"
+    "res/timeBarFill.png",
+    "res/logo.png",
+
+    {
+        type:"font",
+        name:"EurostileExtReg",
+        srcs:["res/EurostileExt-Reg.otf"]
+    }
 ];

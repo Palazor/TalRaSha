@@ -133,6 +133,10 @@ var MenuLayer = cc.Layer.extend({
         bg.setPosition(width / 2, height / 2);
         layer.addChild(bg);
 
+        var logo = new cc.Sprite('res/logo.png');
+        logo.setPosition(width / 2, height / 2 + 50);
+        layer.addChild(logo);
+
         var label = new cc.LabelTTF("All by Razor", "microsoft yahei", 36);
         label.setColor(cc.color(255, 255, 255));
         label.setPosition(width / 2, height / 2 + 50);

@@ -172,7 +172,7 @@ var GameUI = cc.Layer.extend({
         labelScore.setPosition(centerX - 50, posY);
         layer.addChild(labelScore);
 
-        var textScore = new cc.LabelTTF(this.gameLayer.score + "", "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        var textScore = new cc.LabelTTF(this.gameLayer.score + "", "arial", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
         textScore.setAnchorPoint(0, 0.5);
         textScore.setColor(textColor);
         textScore.setPosition(centerX + 50, posY);
@@ -187,7 +187,7 @@ var GameUI = cc.Layer.extend({
         labelTime.setPosition(centerX - 50, posY);
         layer.addChild(labelTime);
 
-        var textTime = new cc.LabelTTF(this.gameLayer.timeBonus + "", "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        var textTime = new cc.LabelTTF(this.gameLayer.timeBonus + "", "arial", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
         textTime.setAnchorPoint(0, 0.5);
         textTime.setColor(textColor);
         textTime.setPosition(centerX + 50, posY);
@@ -209,7 +209,7 @@ var GameUI = cc.Layer.extend({
             crystal.setPosition(centerX - 50, posY);
             layer.addChild(crystal);
 
-            var textCount = new cc.LabelTTF(this.gameLayer.crystalCount[type] + "", "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
+            var textCount = new cc.LabelTTF(this.gameLayer.crystalCount[type] + "", "arial", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
             textCount.setAnchorPoint(0, 0.5);
             textCount.setColor(textColor);
             textCount.setPosition(centerX + 50, posY);
