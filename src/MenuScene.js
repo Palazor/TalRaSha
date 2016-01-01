@@ -7,10 +7,14 @@ var MenuLayer = cc.Layer.extend({
     centerX: 0,
     centerY: 0,
 
+    labelUser: null,
+
     menuUser: null,
     menuStart: null,
     menuScoreborad: null,
     menuStaff: null,
+
+    menu: null,
 
     ctor: function () {
         this._super();
@@ -27,18 +31,13 @@ var MenuLayer = cc.Layer.extend({
     },
 
     init: function () {
-        var size = cc.winSize;
-        var mySprite = new cc.Sprite("res/bg_menu.jpg");
-        mySprite.x = size.width/2;
-        mySprite.y = size.height/2;
-        this.addChild(mySprite);
-
         // user
-        var curUser = "Razor";//Storage.getCurrentUser();
+        var curUser = Storage.getCurrentUser();
         var labelUser = new cc.LabelTTF("", "microsoft yahei", 48, undefined, cc.TEXT_ALIGNMENT_LEFT);
-        labelUser.setPosition(this.centerX, this.centerY + 100);
+        labelUser.setPosition(this.centerX, this.centerY + 50);
         labelUser.setColor(cc.color(255, 255, 255));
         this.addChild(labelUser);
+        this.labelUser = labelUser;
         if (curUser) {
             labelUser.setString('欢迎您, 指挥官' + curUser);
         }
@@ -46,7 +45,7 @@ var MenuLayer = cc.Layer.extend({
         // user menu
         var text = curUser ? '切换用户' : '新用户';
         this.menuUser = MenuItem(text, function () {
-            //this._inputUser();
+            this._inputUser();
         }, this);
 
         // start menu
@@ -68,9 +67,12 @@ var MenuLayer = cc.Layer.extend({
         menu.alignItemsVerticallyWithPadding(40);
         this.addChild(menu);
         menu.y = cc.winSize.height / 3;
+        this.menu = menu;
     },
 
     _inputUser: function () {
+        this._toggleMenu(false);
+
         var width = cc.winSize.width;
         var height = cc.winSize.height;
         var layer = new cc.LayerColor(cc.color(0, 0, 0, 127), width, height);
@@ -80,35 +82,45 @@ var MenuLayer = cc.Layer.extend({
         bg.setPosition(width / 2, height / 2);
         layer.addChild(bg);
 
-        var inputBg = new cc.Sprite('res/inputBg.png');
-        inputBg.setPosition(width / 2, height / 2 + 50);
-        layer.addChild(inputBg);
+        var labelInput = new cc.LabelTTF("INPUT YOUR NAME", "microsoft yahei", 36);
+        labelInput.setPosition(width / 2, height / 2 + 100);
+        labelInput.setColor(cc.color(255, 255, 255));
+        layer.addChild(labelInput);
 
-        var inputField = new cc.EditBox(cc.size(inputBg.width - 10, inputBg.height - 10), inputBg);
+        var inputBg = new cc.Scale9Sprite('res/inputBg.png');
+        var inputField = new cc.EditBox(cc.size(inputBg.width, inputBg.height), inputBg);
+        inputField.setFontName('microsoft yahei');
         inputField.setFontSize(36);
         inputField.setMaxLength(10);
         inputField.setFontColor(cc.color(255, 255, 255));
-        inputField.setPosition(width / 2, height / 2 + 50);
+        inputField.setInputMode(cc.EDITBOX_INPUT_MODE_SINGLELINE);
+        inputField.setPosition(width / 2, height / 2 + 15);
         layer.addChild(inputField);
 
         // block event
-        var clickHandler = function () {
+        var ok = MenuItem('确定', function () {
+            var curUser = inputField.getString();
+            if (curUser && curUser != '') {
+                this.labelUser.setString('欢迎您, 指挥官' + curUser);
+                this.menuUser.setLabel('切换用户');
+                Storage.setCurrentUser(curUser);
+            }
+            this._toggleMenu(true);
             this.removeChild(layer);
-        };
-        if("touches" in cc.sys.capabilities) {
-            var clickListener = {
-                event: cc.EventListener.TOUCH_ONE_BY_ONE,
-                swallowTouches: true,
-                onTouchBegan: clickHandler.bind(this)
-            };
-        } else {
-            clickListener = {
-                event: cc.EventListener.MOUSE,
-                swallowTouches: true,
-                onMouseDown: clickHandler.bind(this)
-            };
-        }
-        //cc.eventManager.addListener(clickListener, bg);
+        }, this);
+        var cancel = MenuItem('取消', function () {
+            this._toggleMenu(true);
+            this.removeChild(layer);
+        }, this);
+
+        var menu = new cc.Menu(ok, cancel);
+        menu.alignItemsHorizontallyWithPadding(20);
+        menu.y = height / 2 - 100;
+        layer.addChild(menu);
+    },
+
+    _toggleMenu: function (enable) {
+        this.menu.setEnabled(enable);
     },
 
     _showStaff: function () {

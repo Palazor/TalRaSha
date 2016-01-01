@@ -4,7 +4,6 @@
  */
 
 var ScoreboardLayer = cc.Layer.extend({
-    scoreData: null,
     centerX: 0,
     centerY: 0,
 
@@ -14,8 +13,6 @@ var ScoreboardLayer = cc.Layer.extend({
 
     ctor: function () {
         this._super();
-
-        this.scoreData = Storage.getScoreboard();
 
         this.centerX = cc.visibleRect.center.x;
         this.centerY = cc.visibleRect.center.y;
@@ -28,7 +25,7 @@ var ScoreboardLayer = cc.Layer.extend({
     },
     
     showScoreboard: function () {
-        var scores = this.scoreData;
+        var scores = Storage.getScoreboard();
 
         var len = scores.length;
         var posY = cc.winSize.height / 2 + len * 25;
@@ -65,6 +62,7 @@ var ScoreboardLayer = cc.Layer.extend({
         }, this));
         menu.y = posY - 50;
         this.addChild(menu);
+        this.labelList.push(menu);
     }
 });
 

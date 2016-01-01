@@ -14,5 +14,7 @@ var g_resources = [
     "res/btnDisable.png",
     "res/btnNormal.png",
     "res/dialogBg.png",
-    "res/inputBg.png"
+    "res/inputBg.png",
+    "res/timeBar.png",
+    "res/timeBarFill.png"
 ];

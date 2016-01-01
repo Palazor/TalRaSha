@@ -50,6 +50,7 @@
 var menuScene, gameScene, scorboardScene;
 
 cc.game.onStart = function(){
+    cc.view.enableAutoFullScreen(true);
     cc.view.adjustViewPort(true);
     cc.view.setDesignResolutionSize(720, 1280, cc.ResolutionPolicy.SHOW_ALL);
     cc.view.resizeWithBrowserSize(true);

@@ -465,6 +465,7 @@ var GameLayer = cc.Layer.extend({
         if (this.timeLeft <= 0) {
             this._removeListeners();
             this.unscheduleUpdate();
+            Storage.pushToScoreboard(Storage.getCurrentUser(), this.score);
             this.gameUI.showResult();
         }
     }

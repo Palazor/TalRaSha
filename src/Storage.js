@@ -11,12 +11,7 @@ var Storage = {
     },
 
     getScoreboard: function () {
-        return cc.sys.localStorage.getItem('scoreboard') || [
-                {'score': 1000, 'user': 'user1'},
-                {'score': 900, 'user': 'user2'},
-                {'score': 800, 'user': 'user3'},
-                {'score': 600, 'user': 'user4'}
-            ];
+        return JSON.parse(cc.sys.localStorage.getItem('scoreboard')) || [];
     },
 
     pushToScoreboard: function (user, score) {
@@ -35,7 +30,7 @@ var Storage = {
     },
 
     setScoreboard: function (scoreboard) {
-        cc.sys.localStorage.setItem('scoreboard', scoreboard);
+        cc.sys.localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
     },
 
     getCurrentScore: function () {

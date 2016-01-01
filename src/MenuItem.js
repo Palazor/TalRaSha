@@ -10,5 +10,9 @@ var MenuItem = function (text, handler, target) {
     label.setPosition(menuItem.width / 2, menuItem.height /2 + 2);
     menuItem.addChild(label);
 
+    menuItem.setLabel = function (text) {
+        label.setString(text || '');
+    };
+
     return menuItem;
 };
