@@ -19,9 +19,9 @@ var g_resources = [
     "res/timeBarFill.png",
     "res/logo.png",
 
-    {
-        type:"font",
-        name:"EurostileExtReg",
-        srcs:["res/EurostileExt-Reg.otf"]
-    }
+    //{
+    //    type:"font",
+    //    name:"EurostileExtReg",
+    //    srcs:["res/EurostileExt-Reg.otf"]
+    //}
 ];
