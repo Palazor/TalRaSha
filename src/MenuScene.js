@@ -27,10 +27,16 @@ var MenuLayer = cc.Layer.extend({
     },
 
     init: function () {
+        var size = cc.winSize;
+        var mySprite = new cc.Sprite("res/bg_menu.jpg");
+        mySprite.x = size.width/2;
+        mySprite.y = size.height/2;
+        this.addChild(mySprite);
+
         // user
         var curUser = "Razor";//Storage.getCurrentUser();
         var labelUser = new cc.LabelTTF("", "microsoft yahei", 48, undefined, cc.TEXT_ALIGNMENT_LEFT);
-        labelUser.setPosition(this.centerX, this.centerY);
+        labelUser.setPosition(this.centerX, this.centerY + 100);
         labelUser.setColor(cc.color(255, 255, 255));
         this.addChild(labelUser);
         if (curUser) {
@@ -59,9 +65,9 @@ var MenuLayer = cc.Layer.extend({
         }, this);
 
         var menu = new cc.Menu(this.menuUser, this.menuStart, this.menuScoreborad, this.menuStaff);
-        menu.alignItemsVerticallyWithPadding(20);
+        menu.alignItemsVerticallyWithPadding(40);
         this.addChild(menu);
-        menu.y = cc.winSize.height / 4;
+        menu.y = cc.winSize.height / 3;
     },
 
     _inputUser: function () {
