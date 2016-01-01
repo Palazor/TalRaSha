@@ -13,6 +13,8 @@ var GameUI = cc.Layer.extend({
 
     gameLayer:null,
 
+    leftTimeFill: null,
+
     ctor: function (gameLayer) {
         this._super();
         this.gameLayer = gameLayer;
@@ -40,6 +42,18 @@ var GameUI = cc.Layer.extend({
         this.addChild(scoreText);
         this.scoreText = scoreText;
 
+        var leftTimeFill = new cc.Sprite('res/timeBarFill.png');
+        leftTimeFill.setAnchorPoint(0, 1);
+        leftTimeFill.x = size.width - margin - 345;
+        leftTimeFill.y = scoreLabel.y - scoreLabel.height - 19;
+        this.addChild(leftTimeFill);
+        this.leftTimeFill = leftTimeFill;
+
+        var leftTimeMask = new cc.Sprite('res/timeBar.png');
+        leftTimeMask.setAnchorPoint(1, 1);
+        leftTimeMask.setPosition(size.width - margin, scoreLabel.y - scoreLabel.height - 16);
+        this.addChild(leftTimeMask);
+
         var leftTimeLabel = new cc.LabelTTF("TIME LEFT", "arial", 36, undefined, cc.TEXT_ALIGNMENT_LEFT);
         leftTimeLabel.setAnchorPoint(0, 1);
         leftTimeLabel.x = margin;
@@ -48,8 +62,8 @@ var GameUI = cc.Layer.extend({
         this.addChild(leftTimeLabel);
 
         var leftTimeText = new cc.LabelTTF("0", "arial", 36, undefined, cc.TEXT_ALIGNMENT_RIGHT);
-        leftTimeText.setAnchorPoint(1, 1);
-        leftTimeText.x = size.width - margin;
+        leftTimeText.setAnchorPoint(0.5, 1);
+        leftTimeText.x = leftTimeFill.x + 165;
         leftTimeText.y = leftTimeLabel.y;
         leftTimeText.setColor(cc.color(255, 255, 255));
         this.addChild(leftTimeText);
@@ -226,6 +240,7 @@ var GameUI = cc.Layer.extend({
     update: function () {
         this.scoreText.setString("" + this.gameLayer.score);
         this.leftTimeText.setString("" + Math.round(this.gameLayer.timeLeft / 1000));
+        this.leftTimeFill.scaleX = this.gameLayer.timeLeft / 1000 / Constant.TIME_LEFT_INIT;
 
         this.count1Text.setString("" + this.gameLayer.crystalCount['1']);
         this.count2Text.setString("" + this.gameLayer.crystalCount['2']);
@@ -237,6 +252,10 @@ var GameUI = cc.Layer.extend({
 
     drawLine: function (path, color) {
         // TODO: 从头至尾连接水晶的一条线 颜色跟水晶颜色一直, 略微加深颜色
+    },
+
+    clearLine: function () {
+
     },
 
     showFinalScore: function () {

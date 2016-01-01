@@ -24,5 +24,5 @@ var Constant = {
     STONE_BONUS_SCORE: 3,
 
     TIME_STONE_SPAWN: 1,
-    TIME_LEFT_INIT: 1
+    TIME_LEFT_INIT: 10
 };
