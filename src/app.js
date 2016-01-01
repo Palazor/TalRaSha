@@ -248,12 +248,11 @@ var GameLayer = cc.Layer.extend({
 
             var dice = Math.random();
             if (dice < 0.3) {
-                // TODO: pop a meta crystal
-                //var meta = new Crystal(Constant.CRYSTAL_META, col, row);
-                //this.mapPanel.addChild(meta);
-                //meta.x = col * Constant.CELL_SPACE + Constant.CELL_WIDTH / 2;
-                //meta.y = row * Constant.CELL_HEIGHT + (1 + i % 2) * Constant.CELL_HEIGHT / 2;
-                //this.map[col][row] = meta;
+                var meta = new Crystal(Constant.CRYSTAL_META, col, row);
+                this.mapPanel.addChild(meta);
+                meta.x = col * Constant.CELL_SPACE + Constant.CELL_WIDTH / 2;
+                meta.y = row * Constant.CELL_HEIGHT + (1 + col % 2) * Constant.CELL_HEIGHT / 2;
+                this.map[col][row] = meta;
             } else if (dice < 0.6) {
                 this.timeBonus += Constant.STONE_BONUS_TIME;
                 this.timeLeft += Constant.STONE_BONUS_TIME * 1000;
