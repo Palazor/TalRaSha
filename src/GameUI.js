@@ -142,16 +142,85 @@ var GameUI = cc.Layer.extend({
     },
 
     showResult: function () {
-        var bg = new cc.LayerColor(cc.color(255,255,255),500,500);
-        this.addChild(bg, 1);
-        var size = cc.director.getWinSize();
-        bg.x = (size.width - bg.width)/2;
-        bg.y = (size.height - bg.height)/2;
-        var text = new cc.LabelTTF("Score:" + (this.gameLayer.score), "arial", 50);
-        text.setColor(cc.color(0,0,0));
-        text.x = 250;
-        text.y = 250;
-        bg.addChild(text);
+        var width = cc.winSize.width;
+        var height = cc.winSize.height;
+        var layer = new cc.LayerColor(cc.color(0, 0, 0, 196), width, height);
+        this.addChild(layer);
+
+        var textColor = cc.color(255, 255, 255);
+        var centerX = width / 2;
+        var posY = height / 2 + 350;
+
+        // total sore
+        var labelScore = new cc.LabelTTF('总分', "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_RIGHT);
+        labelScore.setAnchorPoint(1, 0.5);
+        labelScore.setColor(textColor);
+        labelScore.setPosition(centerX - 50, posY);
+        layer.addChild(labelScore);
+
+        var textScore = new cc.LabelTTF(this.gameLayer.score + "", "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        textScore.setAnchorPoint(0, 0.5);
+        textScore.setColor(textColor);
+        textScore.setPosition(centerX + 50, posY);
+        layer.addChild(textScore);
+
+        posY -= 70;
+
+        // time bonus
+        var labelTime = new cc.LabelTTF('奖励时间', "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_RIGHT);
+        labelTime.setAnchorPoint(1, 0.5);
+        labelTime.setColor(textColor);
+        labelTime.setPosition(centerX - 50, posY);
+        layer.addChild(labelTime);
+
+        var textTime = new cc.LabelTTF(this.gameLayer.timeBonus + "", "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
+        textTime.setAnchorPoint(0, 0.5);
+        textTime.setColor(textColor);
+        textTime.setPosition(centerX + 50, posY);
+        layer.addChild(textTime);
+
+        posY -= 70;
+
+        var types = [];
+        for (var index = 0; index < Constant.CRYSTAL_TYPE_COUNT; index++) {
+            types.push((index + 1) + "");
+        }
+        types.push(Constant.CRYSTAL_META, Constant.CRYSTAL_STONE);
+        var len = types.length;
+        for (index = 0; index < len; index++) {
+            var type = types[index];
+
+            var crystal = new cc.Sprite("res/gem_" + type + ".png");
+            crystal.setAnchorPoint(1, 0.5);
+            crystal.setPosition(centerX - 50, posY);
+            layer.addChild(crystal);
+
+            var textCount = new cc.LabelTTF(this.gameLayer.crystalCount[type] + "", "microsoft yahei", 56, undefined, cc.TEXT_ALIGNMENT_LEFT);
+            textCount.setAnchorPoint(0, 0.5);
+            textCount.setColor(textColor);
+            textCount.setPosition(centerX + 50, posY);
+            layer.addChild(textCount);
+
+            posY -= 70;
+        }
+
+        var home = MenuItem('主菜单', function () {
+            cc.director.runScene(new cc.TransitionFade(0.5, menuScene));
+            return true;
+        }, this);
+        var again = MenuItem('重来', function () {
+            this.removeChild(layer);
+            this.gameLayer.init();
+            return true;
+        }, this);
+        var scoreboard = MenuItem('排行榜', function () {
+            cc.director.runScene(new cc.TransitionFade(0.5, scoreboardScene));
+            return true;
+        }, this);
+        var menu = new cc.Menu(home, again, scoreboard);
+        menu.alignItemsHorizontallyWithPadding(10);
+        menu.y = posY - 50;
+        layer.addChild(menu);
     },
 
     update: function () {

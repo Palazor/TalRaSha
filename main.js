@@ -47,13 +47,16 @@
  *
  */
 
+var menuScene, gameScene, scorboardScene;
+
 cc.game.onStart = function(){
     cc.view.adjustViewPort(true);
     cc.view.setDesignResolutionSize(720, 1280, cc.ResolutionPolicy.SHOW_ALL);
     cc.view.resizeWithBrowserSize(true);
     //load resources
-    cc.LoaderScene.preload(g_resources, function () {
-        cc.director.runScene(new GameScene());
+    LoaderScene.preload(g_resources, function () {
+        menuScene = new MenuScene();
+        cc.director.runScene(menuScene);
     }, this);
 };
 cc.game.run();

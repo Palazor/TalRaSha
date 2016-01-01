@@ -15,7 +15,8 @@ var GameLayer = cc.Layer.extend({
         '3': 0,
         '4': 0,
         '5': 0,
-        'meta': 0
+        'meta': 0,
+        'stone': 0
     },
 
     map:null,
@@ -26,6 +27,7 @@ var GameLayer = cc.Layer.extend({
     joinCrystals: [],
     headCrystal: null,
 
+    _eventPointerDown: null,
     _eventPointerMove: null,
     _eventPointerUp: null,
     _eventTouchCancelled: null,
@@ -58,14 +60,19 @@ var GameLayer = cc.Layer.extend({
         				this.mapPanel.y+Constant.MAP_HEIGHT),
             cc.color(0,0,0), 1, cc.color(0,0,0));
         clippingPanel.stencil = stencil;
-        
-        //this.addChild(this.mapPanel,2);
 
+        this.gameUI = new GameUI(this);
+        this.addChild(this.gameUI, 3);
+
+        return true;
+    },
+
+    _initListeners: function () {
         if("touches" in cc.sys.capabilities){
-            cc.eventManager.addListener({
+            this._eventPointerDown = {
                 event: cc.EventListener.TOUCH_ONE_BY_ONE,
                 onTouchBegan: this._onTouchBegan.bind(this)
-            }, this.mapPanel);
+            };
 
             this._eventPointerMove = {
                 event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -80,10 +87,10 @@ var GameLayer = cc.Layer.extend({
                 onTouchCancelled: this._onTouchEnd.bind(this)
             };
         } else {
-            cc.eventManager.addListener({
+            this._eventPointerDown = {
                 event: cc.EventListener.MOUSE,
                 onMouseDown: this._onMouseDown.bind(this)
-            }, this.mapPanel);
+            };
 
             this._eventPointerMove = {
                 event: cc.EventListener.MOUSE,
@@ -94,51 +101,83 @@ var GameLayer = cc.Layer.extend({
                 onMouseUp: this._onMouseUp.bind(this)
             };
         }
-
-        this._init();
-
-        this.gameUI = new GameUI(this);
-        this.addChild(this.gameUI, 3);
-
-        return true;
     },
 
-    _init: function () {
-        this.score = Storage.getCurrentScore();
-        
+    init: function () {
+        this.score = 0;
+        this.crystalCount = {
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            'meta': 0,
+            'stone': 0
+        };
+        this.timeBonus = 0;
+
+        this.mapPanel.removeAllChildren();
         this.map = [];
         for (var i = 0; i < Constant.MAP_COLS; i++) {
             var column = [];
             var rows = Constant.MAP_ROWS - (i % 2);
             for (var j = 0; j < rows; j++) {
-                var crystal = Crystal.createRandomType(i,j);
-                this.mapPanel.addChild(crystal);
-                crystal.x = i * Constant.CELL_SPACE + Constant.CELL_WIDTH / 2;
-                crystal.y = j * Constant.CELL_HEIGHT + (1 + i % 2) * Constant.CELL_HEIGHT / 2;
-                column.push(crystal);
+                //var crystal = Crystal.createRandomType(i,j);
+                //this.mapPanel.addChild(crystal);
+                //crystal.x = i * Constant.CELL_SPACE + Constant.CELL_WIDTH / 2;
+                //crystal.y = j * Constant.CELL_HEIGHT + (1 + i % 2) * Constant.CELL_HEIGHT / 2;
+                //column.push(crystal);
+                column.push(null);
             }
             this.map.push(column);
         }
 
+        this.scheduleOnce(this._start, 0.5, this);
+    },
+
+    _start: function () {
         this._timeStart = new Date().getTime();
         this.timeLeft = Constant.TIME_LEFT_INIT * 1000;
+
+        this._generateNewCrystal();
+
         this.scheduleOnce(function () {
             this.blockStone = false;
         }, Constant.TIME_STONE_SPAWN, this);
         this.scheduleUpdate();
+
+        this._addListeners();
+    },
+
+    _addListeners: function () {
+        this._initListeners();
+        cc.eventManager.addListener(this._eventPointerDown, this.mapPanel);
+    },
+
+    _removeListeners: function () {
+        cc.eventManager.removeAllListeners();
+        //cc.eventManager.removeListeners(this.mapPanel);
     },
 
     _onTouchBegan: function (touch, event) {
+        if (!this.mapPanel) {
+            return;
+        }
+
         this._pointerDown(touch.getLocation().x, touch.getLocation().y);
 
         cc.eventManager.addListener(this._eventPointerMove, this.mapPanel);
         cc.eventManager.addListener(this._eventPointerUp, this.mapPanel);
         cc.eventManager.addListener(this._eventTouchCancelled, this.mapPanel);
+
+        return true;
     },
 
     _onTouchMove: function (touch, event) {
         this._pointerMove(touch.getLocation().x, touch.getLocation().y);
         this.map[2][2].turnToStone();
+
+        return true;
     },
 
     _onTouchEnd: function (touch, event) {
@@ -148,17 +187,27 @@ var GameLayer = cc.Layer.extend({
         this.map[5][5].turnToStone();
 
         this._pointerUp();
+
+        return true;
     },
 
     _onMouseDown: function (event) {
+        if (!this.mapPanel) {
+            return;
+        }
+
         this._pointerDown(event.getLocationX(), event.getLocationY());
 
         cc.eventManager.addListener(this._eventPointerMove, this.mapPanel);
         cc.eventManager.addListener(this._eventPointerUp, this.mapPanel);
+
+        return true;
     },
 
     _onMouseMove: function (event) {
         this._pointerMove(event.getLocationX(), event.getLocationY());
+
+        return true;
     },
 
     _onMouseUp: function (event) {
@@ -166,6 +215,8 @@ var GameLayer = cc.Layer.extend({
         cc.eventManager.removeListener(this._eventPointerUp, this.mapPanel);
 
         this._pointerUp();
+
+        return true;
     },
 
     _pointerDown: function (screenX, screenY) {
@@ -239,6 +290,12 @@ var GameLayer = cc.Layer.extend({
 
         var removeStone = function () {
             stoneBonus = Constant.STONE_BONUS_SCORE;
+
+            if (this.crystalCount.hasOwnProperty(this.stone.type)) {
+                this.crystalCount[this.stone.type]++;
+            } else {
+                this.crystalCount[this.stone.type] = 1;
+            }
 
             var col = this.stone.column;
             var row = this.stone.row;
@@ -381,6 +438,7 @@ var GameLayer = cc.Layer.extend({
         this.timeLeft -= curTime - this._timeStart;
         this._timeStart = curTime;
         if (this.timeLeft <= 0) {
+            this._removeListeners();
             this.unscheduleUpdate();
             this.gameUI.showResult();
         }
@@ -393,6 +451,8 @@ var GameScene = cc.Scene.extend({
         this._super();
         var layer = new GameLayer();
         this.addChild(layer);
+
+        layer.init();
     }
 });
 

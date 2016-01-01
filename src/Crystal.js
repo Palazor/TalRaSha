@@ -40,7 +40,7 @@ var Crystal = cc.Sprite.extend({
             var crystalOut = cc.spawn(cc.fadeOut(0.1), cc.scaleTo(0.1, 0.2));
             var stoneCallback = new cc.CallFunc(function () {
                 this.icon.setColor(cc.color(255,255,255));
-                this.icon.setTexture('res/stone.png');
+                this.icon.setTexture('res/gem_stone.png');
                 this.icon.setScale(1);
                 this.type = Constant.CRYSTAL_STONE;
             }, this);
