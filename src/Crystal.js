@@ -48,7 +48,7 @@ var Crystal = cc.Sprite.extend({
             this.icon.runAction(cc.sequence(crystalOut, stoneCallback, stoneIn));
         }, 5, this);
 
-        const variance = 4;
+        var variance = 4;
 
         var move = cc.moveTo(0.02, r(variance), r(variance));
         var actionCallback = function () {};

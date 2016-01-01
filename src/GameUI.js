@@ -23,7 +23,7 @@ var GameUI = cc.Layer.extend({
     },
 
     _initInfoPanel: function () {
-        const margin = 80;
+        var margin = 80;
 
         var size = cc.director.getWinSize();
 
@@ -69,7 +69,7 @@ var GameUI = cc.Layer.extend({
         this.addChild(leftTimeText);
         this.leftTimeText = leftTimeText;
 
-        const iconWidth = 60;
+        var iconWidth = 60;
         var crystal1 = new cc.Sprite('res/gem_1.png');
         crystal1.x = margin + crystal1.width / 2;
         crystal1.y = 150;
