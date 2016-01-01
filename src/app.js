@@ -5,6 +5,7 @@ function trace(){
 var GameLayer = cc.Layer.extend({
 
     mapPanel:null,
+    lightningPanel:null,
     gameUI:null,
     instructionUI:null,
 
@@ -31,6 +32,7 @@ var GameLayer = cc.Layer.extend({
     _eventPointerMove: null,
     _eventPointerUp: null,
     _eventTouchCancelled: null,
+    _touching: false,
 
     blockStone: true,
     _timeStart: 0,
@@ -61,8 +63,11 @@ var GameLayer = cc.Layer.extend({
             cc.color(0,0,0), 1, cc.color(0,0,0));
         clippingPanel.stencil = stencil;
 
+        this.lightningPanel = new cc.DrawNode();
+        this.addChild(this.lightningPanel, 3);
+
         this.gameUI = new GameUI(this);
-        this.addChild(this.gameUI, 3);
+        this.addChild(this.gameUI, 4);
 
         return true;
     },
@@ -71,35 +76,25 @@ var GameLayer = cc.Layer.extend({
         if("touches" in cc.sys.capabilities){
             this._eventPointerDown = {
                 event: cc.EventListener.TOUCH_ONE_BY_ONE,
-                onTouchBegan: this._onTouchBegan.bind(this)
-            };
-
-            this._eventPointerMove = {
-                event: cc.EventListener.TOUCH_ONE_BY_ONE,
-                onTouchMove: this._onTouchMove.bind(this)
-            };
-            this._eventPointerUp = {
-                event: cc.EventListener.TOUCH_ONE_BY_ONE,
-                onTouchEnded: this._onTouchEnd.bind(this)
-            };
-            this._eventTouchCancelled ={
-                event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                onTouchBegan: this._onTouchBegan.bind(this),
+                onTouchMoved: this._onTouchMove.bind(this),
+                onTouchEnded: this._onTouchEnd.bind(this),
                 onTouchCancelled: this._onTouchEnd.bind(this)
             };
         } else {
             this._eventPointerDown = {
                 event: cc.EventListener.MOUSE,
-                onMouseDown: this._onMouseDown.bind(this)
-            };
-
-            this._eventPointerMove = {
-                event: cc.EventListener.MOUSE,
-                onMouseMove: this._onMouseMove.bind(this)
-            };
-            this._eventPointerUp = {
-                event: cc.EventListener.MOUSE,
+                onMouseDown: this._onMouseDown.bind(this),
+                onMouseMove: this._onMouseMove.bind(this),
                 onMouseUp: this._onMouseUp.bind(this)
             };
+
+            //this._eventPointerMove = {
+            //    event: cc.EventListener.MOUSE,
+            //};
+            //this._eventPointerUp = {
+            //    event: cc.EventListener.MOUSE,
+            //};
         }
     },
 
@@ -115,6 +110,7 @@ var GameLayer = cc.Layer.extend({
             'stone': 0
         };
         this.timeBonus = 0;
+        this.lightningPanel.clear();
 
         this.mapPanel.removeAllChildren();
         this.map = [];
@@ -163,30 +159,29 @@ var GameLayer = cc.Layer.extend({
         if (!this.mapPanel) {
             return;
         }
+        this._touching = true;
 
         this._pointerDown(touch.getLocation().x, touch.getLocation().y);
-
-        cc.eventManager.addListener(this._eventPointerMove, this.mapPanel);
-        cc.eventManager.addListener(this._eventPointerUp, this.mapPanel);
-        cc.eventManager.addListener(this._eventTouchCancelled, this.mapPanel);
 
         return true;
     },
 
     _onTouchMove: function (touch, event) {
+        if (!this._touching) {
+            return false;
+        }
         this._pointerMove(touch.getLocation().x, touch.getLocation().y);
-        this.map[2][2].turnToStone();
 
         return true;
     },
 
     _onTouchEnd: function (touch, event) {
-        cc.eventManager.removeListener(this._eventPointerMove, this.mapPanel);
-        cc.eventManager.removeListener(this._eventPointerUp, this.mapPanel);
-        cc.eventManager.removeListener(this._eventTouchCancelled, this.mapPanel);
-        this.map[5][5].turnToStone();
+        if (!this._touching) {
+            return false;
+        }
 
         this._pointerUp();
+        this._touching = false;
 
         return true;
     },
@@ -196,25 +191,38 @@ var GameLayer = cc.Layer.extend({
             return;
         }
 
+        this._touching = true;
+
         this._pointerDown(event.getLocationX(), event.getLocationY());
 
-        cc.eventManager.addListener(this._eventPointerMove, this.mapPanel);
-        cc.eventManager.addListener(this._eventPointerUp, this.mapPanel);
+        //this._initListeners();
+        //cc.eventManager.addListener(this._eventPointerMove, this.mapPanel);
+        //cc.eventManager.addListener(this._eventPointerUp, this.mapPanel);
 
         return true;
     },
 
     _onMouseMove: function (event) {
+        if (!this._touching) {
+            return false;
+        }
+
         this._pointerMove(event.getLocationX(), event.getLocationY());
 
         return true;
     },
 
     _onMouseUp: function (event) {
-        cc.eventManager.removeListener(this._eventPointerMove, this.mapPanel);
-        cc.eventManager.removeListener(this._eventPointerUp, this.mapPanel);
+        if (!this._touching) {
+            return false;
+        }
+
+        //cc.eventManager.removeListener(this._eventPointerMove, this.mapPanel);
+        //cc.eventManager.removeListener(this._eventPointerUp, this.mapPanel);
 
         this._pointerUp();
+
+        this._touching = false;
 
         return true;
     },
@@ -270,15 +278,20 @@ var GameLayer = cc.Layer.extend({
         if (index >= 0 ) {
             // already in queue, roll back
             this.joinCrystals.splice(index + 1);
+            this.lightningPanel.clear();
+            this._drawLine(this.joinCrystals);
         } else if (crystal.type == Constant.CRYSTAL_META || this.headCrystal.type == crystal.type) {
             // add a new available crystal
             this.joinCrystals.push(crystal);
-        }
 
-        // TODO: draw line
+            this.lightningPanel.clear();
+            this._drawLine(this.joinCrystals);
+        }
     },
 
     _removeJoined: function () {
+        this.lightningPanel.clear();
+
         var count = this.joinCrystals.length;
         if (count < 3) {
             return;
@@ -425,6 +438,18 @@ var GameLayer = cc.Layer.extend({
         var row = Math.floor(Math.random() * column.length);
         this.stone = column[row];
         this.stone.turnToStone();
+    },
+
+    _drawLine: function (path) {
+        var len = path.length || 0;
+        var start = path[0];
+        for (var i = 1; i < len; i++) {
+            var end = path[i];
+            var offset = cc.p(10, Constant.MAP_HEIGHT / 2 - Constant.CELL_HEIGHT / 2 - 10);
+            this.lightningPanel.drawSegment(cc.pAdd(start.getPosition(), offset),
+                cc.pAdd(end.getPosition(), offset), 4, cc.color(127, 255, 255, 127));
+            start = end;
+        }
     },
 
     update : function() {

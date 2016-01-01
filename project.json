@@ -21,6 +21,7 @@
         "src/MenuScene.js",
         "src/ScoreboardScene.js",
         "src/InstructionUI.js",
-        "src/MenuItem.js"
+        "src/MenuItem.js",
+        "src/Lightning.js"
     ]
 }

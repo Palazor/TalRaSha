@@ -250,14 +250,6 @@ var GameUI = cc.Layer.extend({
         this.countMetaText.setString("" + this.gameLayer.crystalCount[Constant.CRYSTAL_META]);
     },
 
-    drawLine: function (path, color) {
-        // TODO: 从头至尾连接水晶的一条线 颜色跟水晶颜色一直, 略微加深颜色
-    },
-
-    clearLine: function () {
-
-    },
-
     showFinalScore: function () {
 
     }
